@@ -6,6 +6,14 @@ script:
   - yarn lint
   - yarn coverage
   - yarn docs && git diff --exit-code
-
 after_script:
   - yarn codecov -f coverage/coverage-final.json
+
+deploy:
+  provider: npm
+  email: make.just.on@gmail.com
+  api_key:
+    secure: mT9tdRtxoftPC0MmBpG18nHWL1ZlxZE2WY+7YU1OAyeCMMz/aCJbOd8BW6GnBopStZTT2iKhvXt8KwEj3A+FSdEd9TZ1KMAhQf9JuchKoFJQDdP8gLYeIyloRQLQUJzmaLyT4u9J0N2fWr3VJKxsrgIDjmeMSKukMgFU6AXj4iJdE4Z4d+inQ6HiIfUxP2B0aOCjwAQdIMTG3zGjk9tpvpupTiaJ3dt2Pu4LVdw9dL86hRHj8dgeKJQzWasY2Vd/AVUTw225AndlFoxsQfZiQ3Qfapml1WbgvormWYopBMIxSz5w8ps8tciZqu9Djt2Lo8Pq5Jae9Uv3QJyKh7ocZDhnFUCbq/92cF0ZuwKCpY6nqRALdfHcb+hXfG/pKZTOhnEYou4FcjZsEIFGDDCvhVWSFz9FZm7CWdAu98Dc19RyI1X5qVyaL71BSc2SxE+kftEXH7NhGq2rCugmmOKY9mNXYB0cwaV5IwAP9I72x5oKlOF6vfnf0c3U0aPcoQANxCu6gngJJUgwSSBvvFn3hoIQZwuWwbdZE2grxWlF/v6Tw1RW+hMmaozQ7sgjWz9XpYEAWF9GuwPxySK+/LFsjGZj0DsI9VHQakfec19pd+QPbUswU+89XYp6aQFtD17devmAvFdbuIT0sOoFVmYnC5UO+al2gwvkwuhIwse/TBs=
+  on:
+    tags: true
+    repo: MakeNowJust/eff.js
