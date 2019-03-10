@@ -6,7 +6,8 @@ It is JavaScript port of [eff.lua](https://github.com/Nymphium/eff.lua).
 Many thanks to @Nymphium!
 
 [![Build Status][travis-badge]][travis]
-[![Coverage][codecov-badge]](codecov)
+[![Coverage][codecov-badge]][codecov]
+[![NPM version][npm-version-badge]][npm]
 
 ## API
 
@@ -63,3 +64,5 @@ MIT
 [travis]: https://travis-ci.org/MakeNowJust/eff.js
 [codecov-badge]: https://img.shields.io/codecov/c/github/MakeNowJust/eff.js/master.svg?style=for-the-badge&colorA=FF005E&logo=codecov&logoColor=white
 [codecov]: https://codecov.io/gh/MakeNowJust/eff.js/branch/master
+[npm-version-badge]: https://img.shields.io/npm/v/eff.js.svg?style=for-the-badge&logo=npm
+[npm]: https://www.npmjs.com/package/eff.js
