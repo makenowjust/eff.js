@@ -40,7 +40,7 @@ let uid = 0;
  *
  * @function
  * @param {?string} name an effect name
- * @return {function} the effect instance
+ * @returns {function} the effect instance
  */
 const inst = (name = '') => {
   const thisUid = uid++;
@@ -162,7 +162,7 @@ const handlers = (vh, effhs) =>
  *
  * @function
  * @param {Generator} g a generator
- * @return {*} the generator's result
+ * @returns {*} the generator's result
  */
 const execute = g => {
   const {value, done} = g.next();
