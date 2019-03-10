@@ -162,7 +162,7 @@ const handlers = (vh, effhs) =>
  *
  * @function
  * @param {Generator} g a generator
- * @return {any} the generator's result
+ * @return {*} the generator's result
  */
 const execute = g => {
   const {value, done} = g.next();
