@@ -113,6 +113,7 @@ const handlers = (vh, effhs) =>
      * Wraps the given one-shot continuation by the current effects again.
      *
      * @private
+     * @function
      * @param {GeneratorFunction} k one-shot continuation
      * @returns {GeneratorFunction} the wrapped one-shot continuation
      */
@@ -127,6 +128,7 @@ const handlers = (vh, effhs) =>
      * Handles or resends the given effect invocation.
      *
      * @private
+     * @function
      * @param {object} op an effect or resend invocation
      * @returns {Generator} the generator that returns a effect handler or yields resend invocation
      */
