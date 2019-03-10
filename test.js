@@ -232,3 +232,25 @@ test('shift0/reset', t => {
   const v = execute(g);
   t.is(v, 5);
 });
+
+test('shift0/reset & state', t => {
+  t.plan(2);
+
+  const p = newPrompt();
+  const s = newState();
+
+  const g = s.run(0, function*() {
+    return yield* p.reset(function*() {
+      const v = yield* p.shift0(function*(k) {
+        t.is(yield* k(1), 1);
+        yield s.put(2);
+        return yield s.get();
+      });
+      yield s.put(v);
+      return yield s.get();
+    });
+  });
+
+  const v = execute(g);
+  t.is(v, 2);
+});
