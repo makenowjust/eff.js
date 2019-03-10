@@ -1,6 +1,6 @@
 {
   "name": "eff.js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "One-Shot Algebric Effects on JavaScript Generators",
   "main": "index.js",
   "repository": "https://github.com/MakeNowJust/eff.js",
