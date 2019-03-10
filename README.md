@@ -24,7 +24,7 @@ important technically.
 
 ### How to emulate stackful coroutine on stackless coroutine.
 
-According to Moura et al [1][], both of coroutines call *asymmetric*. Lua's
+According to Moura et al [1], both of coroutines call *asymmetric*. Lua's
 coroutine calls *stackful* that can `yield` over call stacks, and JavaScript
 generator calls *stackless* on the other hand. In general, stackful coroutine
 is more powerful than stackless one. So, it is important how to emulate stackful
@@ -41,7 +41,7 @@ following table:
 | Creates a coroutine | `co = create f`      | `co = f()`   |
 | Calls a function    | `f()`                | `yield* f()` |
 | Yields a coroutine  | `yield v`            | `yield v`    |
-| Resume a coroutine  | `resume co v`        | `co.next(v)` |
+| Resumes a coroutine | `resume co v`        | `co.next(v)` |
 
 I implemented eff.js in accordance with this table. The interesting point is
 `vh` of `handler` function is generator function on eff.js. It is important to
