@@ -20,6 +20,9 @@
     "test": "ava",
     "coverage": "nyc ava"
   },
+  "files": [
+    "index.js"
+  ],
   "xo": {
     "prettier": true,
     "space": true
