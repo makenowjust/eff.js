@@ -6,3 +6,6 @@ script:
   - yarn lint
   - yarn coverage
   - yarn docs && git diff --exit-code
+
+after_script:
+  - yarn codecov -f coverage/coverage-final.json
