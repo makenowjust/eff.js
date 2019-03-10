@@ -5,6 +5,8 @@
 It is JavaScript port of [eff.lua](https://github.com/Nymphium/eff.lua).
 Many thanks to @Nymphium!
 
+[![Build Status][travis-badge]][travis]
+
 ## API
 
 See [API.md](./API.md).
@@ -55,3 +57,6 @@ work `resend` invocation correctly.
 MIT
 
 (C) 2019 TSUYUSATO "MakeNowJust" Kitsune
+
+[travis-badge]: https://img.shields.io/travis/MakeNowJust/eff.js/master.svg?style=for-the-badge&logo=travis&colorA=8B6858
+[travis]: https://travis-ci.org/MakeNowJust/eff.js
