@@ -1,10 +1,10 @@
-/* eslint-disable require-yield */
-
 import * as util from 'util';
 
 import test from 'ava';
 
-import {inst, handler, handlers, execute} from '.';
+import createState from './examples/state';
+import createPrompt from './examples/shift0-reset';
+import {inst, handler, execute} from '.';
 
 test('inst', t => {
   const eff1 = inst();
@@ -92,51 +92,12 @@ test('execute: invalid invocation is found', t => {
   }, 'invalid invocation is found');
 });
 
-// State effect:
-
-const newState = () => {
-  const get = inst('State#get');
-  const put = inst('State#put');
-
-  const run = function*(init, gf) {
-    const f = yield* handlers(
-      function*(v) {
-        return function*() {
-          return v;
-        };
-      },
-      {
-        *[get](k) {
-          return function*(v) {
-            const f = yield* k(v);
-            return yield* f(v);
-          };
-        },
-        *[put](k, v) {
-          return function*(_) {
-            const f = yield* k();
-            return yield* f(v);
-          };
-        }
-      }
-    )(gf);
-
-    return yield* f(init);
-  };
-
-  return {
-    get,
-    put,
-    run
-  };
-};
-
 test('state', t => {
   t.plan(16);
 
-  const s1 = newState();
-  const s2 = newState();
-  const s3 = newState();
+  const s1 = createState();
+  const s2 = createState();
+  const s3 = createState();
 
   const g = s1.run(0, function*() {
     t.is(yield s1.get(), 0);
@@ -187,41 +148,18 @@ test('state', t => {
   t.is(v, 138);
 });
 
-// Shift0/Reset effect:
-
-const newPrompt = () => {
-  const shift0 = inst('ShiftReset#shift0');
-
-  return {
-    *shift0(gf) {
-      return yield shift0(gf);
-    },
-    *reset(gf) {
-      return yield* handler(
-        shift0,
-        function*(v) {
-          return v;
-        },
-        function*(k, f) {
-          return yield* f(k);
-        }
-      )(gf);
-    }
-  };
-};
-
 test('shift0/reset', t => {
   t.plan(5);
 
-  const p = newPrompt();
+  const p = createPrompt();
 
   const g = p.reset(function*() {
-    const v1 = yield* p.shift0(function*(k) {
+    const v1 = yield p.shift0(function*(k) {
       t.is(yield* k(1), 4);
       return 5;
     });
     t.is(v1, 1);
-    const v2 = yield* p.shift0(function*(k) {
+    const v2 = yield p.shift0(function*(k) {
       t.is(yield* k(2), 3);
       return 4;
     });
@@ -236,12 +174,12 @@ test('shift0/reset', t => {
 test('shift0/reset & state', t => {
   t.plan(2);
 
-  const p = newPrompt();
-  const s = newState();
+  const p = createPrompt();
+  const s = createState();
 
   const g = s.run(0, function*() {
     return yield* p.reset(function*() {
-      const v = yield* p.shift0(function*(k) {
+      const v = yield p.shift0(function*(k) {
         t.is(yield* k(1), 1);
         yield s.put(2);
         return yield s.get();
