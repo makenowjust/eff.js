@@ -56,7 +56,7 @@ Combines some handlers to one handler.
 
 -   `hs` **...AsyncGeneratorFunction** effect handlers returned by `handler` or `handlers` function
 
-Returns **AsyncGeneratorFunction** 
+Returns **AsyncGeneratorFunction** the combined handler
 
 ## execute
 
