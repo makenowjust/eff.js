@@ -9,6 +9,97 @@ Many thanks to @Nymphium!
 [![Coverage][codecov-badge]][codecov]
 [![NPM version][npm-version-badge]][npm]
 
+## Install
+
+NPM:
+
+```console
+$ npm install eff.js
+```
+
+Yarn:
+
+```console
+$ yarn add eff.js
+```
+
+## Example
+
+```javascript
+import {inst, handler, combineHandlers, execute} from 'eff.js';
+
+// Creates effect instances.
+const write = inst('write');
+const httpGet = inst('httpGet');
+
+const main = async function* () {
+  // Invokes effects.
+  yield write('hello world');
+  yield write((yield httpGet('https://example.com')).replace(/\n/, '⏎').slice(0, 20) + '...');
+};
+// NOTE: An async generator function `main` is pure in fact.
+// e.g. `await main().next()` evaluates `{ value: {eff: inst%0(write), values: ['hello world']}, done: false}`
+// without any effects.
+
+// Defines handlers for each effect.
+const handleWrite = handler(
+  // A target effect instance:
+  write,
+  // A return callback function:
+  // It is called when `main` is finished.
+  async function* (v) {
+    return v;
+  },
+  // An effect handler:
+  // It is called on each `yield write(text)` with the one-shot continuation after this
+  // and `text` value.
+  async function* (k, text) {
+    console.log(text);
+    return yield* k();
+  },
+);
+const handleWriteWithTimestamp = handler(
+  write,
+  async function* (v) {
+    return v;
+  },
+  async function* (k, text) {
+    console.log(new Date(), text);
+    return yield* k();
+  }
+);
+const handleHttpGet = handler(
+  httpGet,
+  async function* (v) {
+    return v;
+  },
+  async function* (k, url) {
+    const text = await (await fetch(url)).text();
+    return yield* k(text);
+  },
+);
+
+// Runs them.
+(async () => {
+  console.log('write + httpGet:');
+  await execute(combineHandlers(handleWrite, handleHttpGet)(main));
+  console.log();
+
+  console.log('write with timestamp + httpGet:');
+  await execute(combineHandlers(handleWriteWithTimestamp, handleHttpGet)(main));
+  console.log();
+})();
+
+// Outputs:
+// write + httpGet:
+// hello world
+// <!doctype html>⏎<htm...
+//
+// write with timestamp + httpGet:
+// 2019-03-12T16:53:34.344Z 'hello world'
+// 2019-03-12T16:53:35.133Z '<!doctype html>⏎<htm...'
+```
+
 ## API
 
 See [API.md](./API.md).

@@ -9,22 +9,22 @@ const createState = () => {
   return {
     get,
     put,
-    *run(init, gf) {
+    async *run(init, gf) {
       const f = yield* handlers(
-        function*(v) {
-          return function*() {
+        async function*(v) {
+          return async function*() {
             return v;
           };
         },
         {
-          *[get](k) {
-            return function*(v) {
+          async *[get](k) {
+            return async function*(v) {
               const f = yield* k(v);
               return yield* f(v);
             };
           },
-          *[put](k, v) {
-            return function*(_) {
+          async *[put](k, v) {
+            return async function*(_) {
               const f = yield* k();
               return yield* f(v);
             };

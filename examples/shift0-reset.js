@@ -7,13 +7,13 @@ const createPrompt = () => {
 
   return {
     shift0,
-    *reset(gf) {
+    async *reset(gf) {
       return yield* handler(
         shift0,
-        function*(v) {
+        async function*(v) {
           return v;
         },
-        function*(k, f) {
+        async function*(k, f) {
           return yield* f(k);
         }
       )(gf);

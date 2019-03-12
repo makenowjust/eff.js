@@ -68,17 +68,17 @@ const handler = (eff, vh, effh) => handlers(vh, {[eff]: effh});
  * Returns a handler for the given effects.
  *
  * @function
- * @param {GeneratorFunction} vh a return value handler
+ * @param {AsyncGeneratorFunction} vh a return value handler
  * @param {object} effhs effect handlers
- * @returns {GeeneratorFunction} the handlar for the given effects
+ * @returns {AsyncGeneratorFunction} the handlar for the given effects
  */
 const handlers = (vh, effhs) =>
-  function*(gf) {
+  async function*(gf) {
     /**
      * A generator of `gf`.
      *
      * @private
-     * @type {Generator}
+     * @type {AsyncIterator}
      */
     const g = gf();
 
@@ -87,20 +87,20 @@ const handlers = (vh, effhs) =>
      *
      * @private
      * @function
-     * @param {Generator} g a generator
-     * @returns {GeneratorFunction} the one-shot continuation
+     * @param {AsyncIterator} g a generator
+     * @returns {AsyncGeneratorFunction} the one-shot continuation
      */
     const cont = g => {
       let called = false;
 
-      return function*(arg = undefined) {
+      return async function*(arg = undefined) {
         if (called) {
           throw new Error('continuation cannot be called twice');
         }
 
         called = true;
 
-        const {value: r, done} = g.next(arg);
+        const {value: r, done} = await g.next(arg);
         if (done) {
           return yield* vh(r);
         }
@@ -114,12 +114,12 @@ const handlers = (vh, effhs) =>
      *
      * @private
      * @function
-     * @param {GeneratorFunction} k one-shot continuation
-     * @returns {GeneratorFunction} the wrapped one-shot continuation
+     * @param {AsyncGeneratorFunction} k one-shot continuation
+     * @returns {AsyncGeneratorFunction} the wrapped one-shot continuation
      */
     const rehandles = k =>
-      function*(arg) {
-        return yield* handlers(cont(g), effhs)(function*() {
+      async function*(arg = undefined) {
+        return yield* handlers(cont(g), effhs)(async function*() {
           return yield* k(arg);
         });
       };
@@ -130,9 +130,9 @@ const handlers = (vh, effhs) =>
      * @private
      * @function
      * @param {object} op an effect or resend invocation
-     * @returns {Generator} the generator that returns a effect handler or yields resend invocation
+     * @returns {AsyncIterator} the generator that returns a effect handler or yields resend invocation
      */
-    const handles = function*(op) {
+    const handles = async function*(op) {
       if (typeof op === 'object') {
         if (Eff in op) {
           const effh = effhs[op.eff];
@@ -160,14 +160,36 @@ const handlers = (vh, effhs) =>
   };
 
 /**
+ * Combines some handlers to one handler.
+ *
+ * @param  {...AsyncGeneratorFunction} hs effect handlers returned by `handler` or `handlers` function
+ * @returns {AsyncGeneratorFunction} the combined handler
+ */
+const combineHandlers = (...hs) => {
+  if (hs.length === 0) {
+    return async function*(gf) {
+      return yield* gf();
+    };
+  }
+
+  const [h, ...rhs] = hs;
+  const rh = combineHandlers(...rhs);
+  return async function*(gf) {
+    return yield* h(async function*() {
+      return yield* rh(gf);
+    });
+  };
+};
+
+/**
  * Runs the given generator and returns its result.
  *
  * @function
- * @param {Generator} g a generator
- * @returns {*} the generator's result
+ * @param {AsyncIterator} g a generator
+ * @returns {Promise<*>} the generator's result
  */
-const execute = g => {
-  const {value, done} = g.next();
+const execute = async g => {
+  const {value, done} = await g.next();
   if (!done) {
     if (typeof value === 'object' && (Eff in value || Resend in value)) {
       throw new Error('uncaught effect is found');
@@ -179,4 +201,4 @@ const execute = g => {
   return value;
 };
 
-module.exports = {inst, handler, handlers, execute};
+module.exports = {inst, handler, handlers, combineHandlers, execute};

@@ -8,8 +8,10 @@
     -   [Parameters][4]
 -   [handlers][5]
     -   [Parameters][6]
--   [execute][7]
+-   [combineHandlers][7]
     -   [Parameters][8]
+-   [execute][9]
+    -   [Parameters][10]
 
 ## inst
 
@@ -17,9 +19,9 @@ Returns a new effect instance.
 
 ### Parameters
 
--   `name` **[string][9]?** an effect name (optional, default `''`)
+-   `name` **[string][11]?** an effect name (optional, default `''`)
 
-Returns **[function][10]** the effect instance
+Returns **[function][12]** the effect instance
 
 ## handler
 
@@ -29,7 +31,7 @@ It is just a shortcut to `handlers(vh, {[eff]: effh})`.
 
 ### Parameters
 
--   `eff` **[Function][10]** a effect instance
+-   `eff` **[Function][12]** a effect instance
 -   `vh` **GeneratorFunction** a return value handler
 -   `effh` **GeneratorFunction** effect handler
 
@@ -41,10 +43,20 @@ Returns a handler for the given effects.
 
 ### Parameters
 
--   `vh` **GeneratorFunction** a return value handler
--   `effhs` **[object][11]** effect handlers
+-   `vh` **AsyncGeneratorFunction** a return value handler
+-   `effhs` **[object][13]** effect handlers
 
-Returns **GeeneratorFunction** the handlar for the given effects
+Returns **AsyncGeneratorFunction** the handlar for the given effects
+
+## combineHandlers
+
+Combines some handlers to one handler.
+
+### Parameters
+
+-   `hs` **...AsyncGeneratorFunction** effect handlers returned by `handler` or `handlers` function
+
+Returns **AsyncGeneratorFunction** 
 
 ## execute
 
@@ -52,9 +64,9 @@ Runs the given generator and returns its result.
 
 ### Parameters
 
--   `g` **Generator** a generator
+-   `g` **AsyncIterator** a generator
 
-Returns **any** the generator's result
+Returns **[Promise][14]&lt;any>** the generator's result
 
 [1]: #inst
 
@@ -68,12 +80,18 @@ Returns **any** the generator's result
 
 [6]: #parameters-2
 
-[7]: #execute
+[7]: #combinehandlers
 
 [8]: #parameters-3
 
-[9]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+[9]: #execute
 
-[10]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
+[10]: #parameters-4
 
-[11]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+[11]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+
+[12]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function
+
+[13]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+
+[14]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise
