@@ -22,7 +22,7 @@ const Resend = Symbol('Resend');
  * @function
  * @param {function} eff an effect instance
  * @param {Array} values arguments passing to an handler of the effect `eff`
- * @param {GeneratorFunction} k an one-shot continuation
+ * @param {AsyncGeneratorFunction} k an one-shot continuation
  * @returns {object} the resend invocation
  */
 const resend = (eff, values, k) => ({[Resend]: undefined, eff, values, k});
@@ -41,6 +41,16 @@ let uid = 0;
  * @function
  * @param {?string} name an effect name
  * @returns {function} the effect instance
+ * @example
+ * // Creates a new effect instance.
+ * const eff = inst();
+ *
+ * // Creates a new effect instance with a name.
+ * const fooEff = inst('foo');
+ *
+ * // An effect instance is a function returning an object.
+ * // It calls *effect invocation*.
+ * eff(1); // => {eff: inst%0, values: [1]}
  */
 const inst = (name = '') => {
   const thisUid = uid++;
@@ -57,10 +67,38 @@ const inst = (name = '') => {
  * It is just a shortcut to `handlers(vh, {[eff]: effh})`.
  *
  * @function
- * @param {Function} eff a effect instance
- * @param {GeneratorFunction} vh a return value handler
- * @param {GeneratorFunction} effh effect handler
- * @returns {GeeneratorFunction} the handlar for the given effect
+ * @param {Function} eff an effect instance
+ * @param {AsyncGeneratorFunction} vh a return value handler
+ * @param {AsyncGeneratorFunction} effh an effect handler
+ * @returns {AsyncGeeneratorFunction} the handlar for the given effect
+ * @example
+ * const write = inst();
+ *
+ * const handleWrite = handler(
+ *   // An effect instance:
+ *   // It is target to handle.
+ *   write,
+ *   // A return value handler:
+ *   // It is called when `main` is finished.
+ *   async function* (v) {
+ *     return v;
+ *   },
+ *   // An effect handler:
+ *   // It is called on each `yield write(...args)` with the continuation from
+ *   // here and the given `args`.
+ *   async function* (k, ...args) {
+ *     console.log(...args);
+ *     return yield* k();
+ *   },
+ * );
+ *
+ * const main = async function* () {
+ *   yield write('hello world');
+ * };
+ *
+ * execute(handleWrite(main));
+ * // Outputs:
+ * // hello world
  */
 const handler = (eff, vh, effh) => handlers(vh, {[eff]: effh});
 
@@ -71,6 +109,44 @@ const handler = (eff, vh, effh) => handlers(vh, {[eff]: effh});
  * @param {AsyncGeneratorFunction} vh a return value handler
  * @param {object} effhs effect handlers
  * @returns {AsyncGeneratorFunction} the handlar for the given effects
+ * @example
+ * // Implements `State` monad like effect:
+ *
+ * const get = inst();
+ * const put = inst();
+ *
+ * const handleState = async function* (init, main) {
+ *   const f = yield* handler(
+ *     async function* (v) {
+ *       return async function* (_) {
+ *         return v;
+ *       };
+ *     },
+ *     {
+ *       async *[get](k) {
+ *         return async function* (s) {
+ *           return yield* k(s)(s);
+ *         };
+ *       },
+ *       async *[put](k, s) {
+ *         return async function* (_) {
+ *           return yield* k()(s);
+ *         },
+ *       },
+ *     },
+ *   )(main);
+ *
+ *   return yield* f(init);
+ * };
+ *
+ * const main = async function* () {
+ *   yield put(42);
+ *   return yield get();
+ * };
+ *
+ * execute(handleState(0, main)).then(console.log);
+ * // Outputs:
+ * // 42
  */
 const handlers = (vh, effhs) =>
   async function*(gf) {
